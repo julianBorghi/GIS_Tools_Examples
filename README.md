@@ -1,9 +1,6 @@
 WebApp para calcular Indices Espectrales de cualquier lugar Instantaneamente usando GEE y Streamlit
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://your-app-url.streamlit.app)
-[![Earth Engine](https://img.shields.io/badge/Earth-Engine-4285F4)](https://earthengine.google.com/)
-
-## 🚀 Demo
+## 🚀 Demo online libre
 
 [https://t9cjpdsbnpqew36ejug6f6.streamlit.app/](https://t9cjpdsbnpqew36ejug6f6.streamlit.app/)
 
