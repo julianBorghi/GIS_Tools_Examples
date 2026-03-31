@@ -76,7 +76,7 @@ INDEX_INFO = {
     "FEAI": "🏗️ **Feature Extraction AI** - Índice para extracción de características"
 }
 
-# --- Posicion espacial ---
+
 top_left, top_middle_left, top_middle_right, top_right = st.columns([1, 1, 1, 1])
 
 with top_left:
@@ -102,9 +102,7 @@ with top_left:
         manual_geometry = None
         st.warning("⚠️ Ingrese coordenadas válidas (máx > mín)")
 
-
-
-with top_middle_right:
+with top_middle_left:
     st.subheader("🎨 Parámetros de Visualización")
     col1, col2 = st.columns(2)
     with col1:
@@ -116,6 +114,7 @@ with top_middle_right:
     selected_palette = [color1, color2]
     mask_missing = st.checkbox("🖼️ Enmascarar áreas sin datos", value=False, 
                                help="Las áreas sin información se mostrarán en gris")
+    
 with top_middle_right:
     st.subheader("☁️ Tolerancia de nubes (%)")
     cloud_tolerance = st.slider(
@@ -126,6 +125,7 @@ with top_middle_right:
         step=5,
         help="Porcentaje máximo de nubes permitido en las imágenes. Valores más altos incluyen más imágenes pero pueden tener nubes."
     )
+    
 with top_right:
     st.subheader("📅 Rango de tiempo")
     cola, colb = st.columns(2)
@@ -228,18 +228,14 @@ with middle_left:
             st.warning("⚠️ Por favor, dibuje solo un rectángulo")
             
 # --- Index Selection, Preview and Export (Bottom Right) ---
-with bottom_right:
+with middle_right:
     st.subheader("📊 Selección de Índice")
-    
-    # Index categories
     index_groups = {
         "🌿 Vegetación": ["NDVI", "SAVI", "EVI", "NDMI", "GNDVI", "IPVI", "GARI", "ARVI"],
         "💧 Agua": ["NDWI", "MNDWI"],
         "🏜️ Suelo": ["MBI", "EMBI", "BaI", "DBI", "CALI", "DOLI"],
         "❄️ Otros": ["NDSI", "NDGI", "FEAI"]
     }
-
-    # Create selectbox with categories
     index_options = []
     for category, items in index_groups.items():
         index_options.append(f"─── {category} ───")
@@ -248,16 +244,11 @@ with bottom_right:
     valid_indices = []
     for items in index_groups.values():
         valid_indices.extend(items)
-    
     selected_raw = st.selectbox("Seleccionar índice espectral", index_options, index=2)
-    
-    # Get actual index name
     if selected_raw.startswith("───"):
         index = valid_indices[0]  # Default to first valid index
     else:
         index = selected_raw
-    
-    # Show index information
     if index in INDEX_INFO:
         st.info(INDEX_INFO[index])
     
