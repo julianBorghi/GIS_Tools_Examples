@@ -56,6 +56,7 @@ with top_left:
             
                 # Initialize with your specific project ID
                 ee.Initialize(credentials, project=creds_info['project_id'])
+                ee.Authenticate()
                 st.sidebar.success("✅ Connected via Service Account")
             
             else:
