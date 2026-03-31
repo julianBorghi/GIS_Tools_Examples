@@ -77,7 +77,7 @@ INDEX_INFO = {
 }
 
 
-top_left, top_middle, top_right = st.columns([1, 1, 1])
+top_left, top_middle, top_right = st.columns([1, 1, 1]), st.container(border=True)
 
 with top_left:
     st.subheader("📍 Escribir Coordenadas")
