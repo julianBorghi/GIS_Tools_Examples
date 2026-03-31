@@ -80,7 +80,6 @@ INDEX_INFO = {
 top_left, top_middle, top_right = st.columns([1, 1, 1])
 
 with top_left:
-    st.markdown('<div style="border-right: 98px solid #ddd; padding-right: 20px;">', unsafe_allow_html=True)
     st.subheader("📍 Escribir Coordenadas")
     col1, col2 = st.columns(2)
     with col1:
@@ -101,10 +100,8 @@ with top_left:
     else:
         manual_geometry = None
         st.warning("⚠️ Ingrese coordenadas válidas (máx > mín)")
-    st.markdown('</div>', unsafe_allow_html=True)
 
 with top_middle:
-    st.markdown('<div style="border-right: 2px solid #ddd; padding-right: 20px;">', unsafe_allow_html=True)
     st.subheader("🎨 Parámetros de Visualización")
     col1, col2 = st.columns(2)
     with col1:
@@ -116,10 +113,8 @@ with top_middle:
     selected_palette = [color1, color2]
     mask_missing = st.checkbox("🖼️ Enmascarar áreas sin datos", value=False, 
                                help="Las áreas sin información se mostrarán en gris")
-    st.markdown('</div>', unsafe_allow_html=True)
     
 with top_right:
-    st.markdown('<div style="border-right: 2px solid #ddd; padding-right: 20px;">', unsafe_allow_html=True)
     st.subheader("☁️ Tolerancia de nubes (%)")
     cloud_tolerance = st.slider(
         "Maxima covertura permitida",
@@ -147,7 +142,6 @@ with top_right:
         valid_dates = False
     else:
         valid_dates = True
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # --- Helper function to get dataset recommendations ---
 def get_dataset_recommendations(error_message):
