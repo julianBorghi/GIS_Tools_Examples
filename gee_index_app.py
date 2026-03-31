@@ -54,18 +54,40 @@ except Exception as e:
     st.error(f"❌ Failed to initialize Earth Engine: {e}")
     st.stop()
  
-# --- Google Cloud Project (Top Left) ---
+# --- Posicion espacial ---
 top_left, top_right = st.columns([1, 1])
 with top_left:
+    st.subheader("📍 Escribir Coordenadas")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        lon_min = st.number_input("Longitud Mín", value=st.session_state.coords[0] or -76.5, format="%.6f")
+        lat_min = st.number_input("Latitud Mín", value=st.session_state.coords[1] or -16.5, format="%.6f")
+    with col2:
+        lon_max = st.number_input("Longitud Máx", value=st.session_state.coords[2] or -75.5, format="%.6f")
+        lat_max = st.number_input("Latitud Máx", value=st.session_state.coords[3] or -15.5, format="%.6f")
 
+    if lon_max > lon_min and lat_max > lat_min:
+        manual_geometry = ee.Geometry.Rectangle([lon_min, lat_min, lon_max, lat_max])
+        st.session_state.coords = [lon_min, lat_min, lon_max, lat_max]
+        # Check area size
+        area_width = lon_max - lon_min
+        area_height = lat_max - lat_min
+        area_size = area_width * area_height
+        if area_size < 0.0001:
+            st.warning("⚠️ El área seleccionada es muy pequeña. Considera ampliarla para mejores resultados.")
+        st.success(f"✅ Área manual: ({lon_min:.4f}, {lat_min:.4f}) a ({lon_max:.4f}, {lat_max:.4f})")
+    else:
+        manual_geometry = None
+        st.warning("⚠️ Ingrese coordenadas válidas (máx > mín)")
 
 # --- Visualization Parameters (Top Right) ---
 with top_right:
     st.subheader("📅 Rango de tiempo")
-    col1, col2 = st.columns(2)
-        with col1:
+    cola, colb = st.columns(2)
+        with cola:
             start_date = st.date_input("Fecha inicial", value=datetime.date(2025, 4, 1))
-        with col2:
+        with colb:
             end_date = st.date_input("Fecha final", value=datetime.date(2025, 5, 1))
     st.subheader("🎨 Parámetros de Visualización")
     
@@ -214,60 +236,8 @@ def check_data_coverage(image, geometry, index_name):
 
 # --- Coordinates (Middle Left) & Time (Middle Right) ---
 middle_left, middle_right = st.columns([1.5, 1])
-with middle_left:
-    st.subheader("📍 Coordenadas Manualmente")
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        lon_min = st.number_input("Longitud Mín", value=st.session_state.coords[0] or -76.5, format="%.6f")
-        lat_min = st.number_input("Latitud Mín", value=st.session_state.coords[1] or -16.5, format="%.6f")
-    with col2:
-        lon_max = st.number_input("Longitud Máx", value=st.session_state.coords[2] or -75.5, format="%.6f")
-        lat_max = st.number_input("Latitud Máx", value=st.session_state.coords[3] or -15.5, format="%.6f")
 
-    if lon_max > lon_min and lat_max > lat_min:
-        manual_geometry = ee.Geometry.Rectangle([lon_min, lat_min, lon_max, lat_max])
-        st.session_state.coords = [lon_min, lat_min, lon_max, lat_max]
-        # Check area size
-        area_width = lon_max - lon_min
-        area_height = lat_max - lat_min
-        area_size = area_width * area_height
-        if area_size < 0.0001:
-            st.warning("⚠️ El área seleccionada es muy pequeña. Considera ampliarla para mejores resultados.")
-        st.success(f"✅ Área manual: ({lon_min:.4f}, {lat_min:.4f}) a ({lon_max:.4f}, {lat_max:.4f})")
-    else:
-        manual_geometry = None
-        st.warning("⚠️ Ingrese coordenadas válidas (máx > mín)")
-
-with middle_right:
-    st.subheader("☁️ Tolerancia de nubes (%)")
-    cloud_tolerance = st.slider(
-        "Maxima covertura permitida",
-        min_value=0,
-        max_value=100,
-        value=20,
-        step=5,
-        help="Porcentaje máximo de nubes permitido en las imágenes. Valores más altos incluyen más imágenes pero pueden tener nubes."
-    )
-    
-    # Calculate date range length
-    date_range_days = (end_date - start_date).days
-    if date_range_days < 30:
-        st.info(f"ℹ️ Rango de {date_range_days} días. Si no hay datos, amplía a 2-3 meses.")
-    elif date_range_days > 180:
-        st.info(f"ℹ️ Rango de {date_range_days} días. Procesar muchas imágenes puede tomar tiempo.")
-    
-    # Validate date range
-    if start_date >= end_date:
-        st.error("❌ La fecha final debe ser posterior a la inicial")
-        valid_dates = False
-    else:
-        valid_dates = True
-
-# --- Bottom Layout: Map Left, Preview/Export Right ---
-bottom_left, bottom_right = st.columns([1.5, 1])
-
-with bottom_left:
+with mid_left:
     st.subheader("🗺️ Dibujar Rectángulo en el Mapa")
     
     # Calculate map center
@@ -347,6 +317,35 @@ with bottom_left:
             st.rerun()
         else:
             st.warning("⚠️ Por favor, dibuje solo un rectángulo")
+            
+with middle_right:
+    st.subheader("☁️ Tolerancia de nubes (%)")
+    cloud_tolerance = st.slider(
+        "Maxima covertura permitida",
+        min_value=0,
+        max_value=100,
+        value=20,
+        step=5,
+        help="Porcentaje máximo de nubes permitido en las imágenes. Valores más altos incluyen más imágenes pero pueden tener nubes."
+    )
+    
+    # Calculate date range length
+    date_range_days = (end_date - start_date).days
+    if date_range_days < 30:
+        st.info(f"ℹ️ Rango de {date_range_days} días. Si no hay datos, amplía a 2-3 meses.")
+    elif date_range_days > 180:
+        st.info(f"ℹ️ Rango de {date_range_days} días. Procesar muchas imágenes puede tomar tiempo.")
+    
+    # Validate date range
+    if start_date >= end_date:
+        st.error("❌ La fecha final debe ser posterior a la inicial")
+        valid_dates = False
+    else:
+        valid_dates = True
+
+# --- Bottom Layout: Map Left, Preview/Export Right ---
+bottom_left, bottom_right = st.columns([1.5, 1])
+
 
 # Define geometry if coordinates are valid
 if all(c is not None for c in st.session_state.coords):
