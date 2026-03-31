@@ -133,6 +133,6 @@ Copernicus Sentinel-2 - Imágenes satelitales
 ## Contacto
 Julian Eduardo Borghi - juedborghi@ejemplo.com - tambien en LinkedIn
 
-Link del Proyecto: https://github.com/julianBorghi/GIS_Tools_Examples
+Link del Proyecto: https://github.com/julianBorghi/Instant_Spectral_Indexes
 
 ⭐️ ¡No olvides darle una estrella si este proyecto te fue útil!
