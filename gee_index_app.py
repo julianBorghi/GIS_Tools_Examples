@@ -102,9 +102,9 @@ with top_left:
         st.warning("⚠️ Ingrese coordenadas válidas (máx > mín)")
         
 with spacer1:
-    st.write("")  # Just empty space
-    st.markdown("""<div style="text-align: center; color: #ccc;">│</div>""", 
-                unsafe_allow_html=True)
+    st.markdown("""
+        <div style="height: 100%; min-height: 400px; border-left: 2px solid #e0e0e0;"></div>
+    """, unsafe_allow_html=True)
     
 with top_middle:
     st.subheader("🎨 Parámetros de Visualización")
@@ -120,9 +120,9 @@ with top_middle:
                                help="Las áreas sin información se mostrarán en gris")
 
 with spacer2:
-    st.write("")  # Just empty space
-    st.markdown("""<div style="text-align: center; color: #ccc;">│</div>""", 
-                unsafe_allow_html=True)
+    st.markdown("""
+        <div style="height: 100%; min-height: 400px; border-left: 2px solid #e0e0e0;"></div>
+    """, unsafe_allow_html=True)
     
 with top_right:
     st.subheader("☁️ Tolerancia de nubes (%)")
