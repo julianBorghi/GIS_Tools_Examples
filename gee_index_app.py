@@ -77,7 +77,7 @@ INDEX_INFO = {
 }
 
 
-top_left, top_middle, top_right = st.columns([1, 1, 1])
+top_left,spacer1, top_middle,spacer2, top_right = st.columns([1, 0.2, 1, 0.2, 1])
 
 with top_left:
     st.subheader("📍 Escribir Coordenadas")
@@ -100,7 +100,12 @@ with top_left:
     else:
         manual_geometry = None
         st.warning("⚠️ Ingrese coordenadas válidas (máx > mín)")
-
+        
+with spacer1:
+    st.write("")  # Just empty space
+    st.markdown("""<div style="text-align: center; color: #ccc;">│</div>""", 
+                unsafe_allow_html=True)
+    
 with top_middle:
     st.subheader("🎨 Parámetros de Visualización")
     col1, col2 = st.columns(2)
@@ -113,6 +118,11 @@ with top_middle:
     selected_palette = [color1, color2]
     mask_missing = st.checkbox("🖼️ Enmascarar áreas sin datos", value=False, 
                                help="Las áreas sin información se mostrarán en gris")
+
+with spacer2:
+    st.write("")  # Just empty space
+    st.markdown("""<div style="text-align: center; color: #ccc;">│</div>""", 
+                unsafe_allow_html=True)
     
 with top_right:
     st.subheader("☁️ Tolerancia de nubes (%)")
