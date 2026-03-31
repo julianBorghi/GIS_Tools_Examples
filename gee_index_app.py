@@ -146,7 +146,7 @@ with top_right:
         valid_dates = True
 
 
-middle_left, middle_right = st.columns([3, 1])
+middle_left, middle_right = st.columns([1, 1])
 
 with middle_left:
     st.subheader("🗺️ Dibujar Rectángulo en el Mapa")
