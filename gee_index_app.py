@@ -124,8 +124,8 @@ with top_right:
         step=5,
         help="Porcentaje máximo de nubes permitido en las imágenes. Valores más altos incluyen más imágenes pero pueden tener nubes."
     )
-        st.subheader("📅 Rango de tiempo")
-
+    
+    st.subheader("📅 Rango de tiempo")
     cola, colb = st.columns(2)
     with cola:
         start_date = st.date_input("Fecha inicial", value=datetime.date(2025, 4, 1))
