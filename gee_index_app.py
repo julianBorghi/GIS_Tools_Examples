@@ -760,15 +760,14 @@ with st.sidebar:
     st.markdown("""
     ### Cómo usar esta aplicación:
     
-    1. **Conectar Earth Engine** con tu proyecto de Google Cloud
-    2. **Seleccionar área de interés**:
+    1. **Seleccionar área de interés**:
        - Dibuja un rectángulo en el mapa
        - O ingresa coordenadas manualmente
-    3. **Elegir fechas** para las imágenes
-    4. **Ajustar tolerancia de nubes** si es necesario
-    5. **Seleccionar índice espectral** de la lista
-    6. **Generar vista previa** para ver el resultado
-    7. **Exportar a Google Drive** si es necesario
+    2. **Elegir fechas** para las imágenes
+    3. **Ajustar tolerancia de nubes** si es necesario
+    4. **Seleccionar índice espectral** de la lista
+    5. **Generar vista previa** para ver el resultado
+    6. **Exportar a Google Drive** si es necesario
     
     ### Índices disponibles:
     - **Vegetación**: NDVI, SAVI, EVI, NDMI, GNDVI, IPVI, GARI, ARVI
