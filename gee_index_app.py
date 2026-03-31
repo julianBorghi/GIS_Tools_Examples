@@ -77,7 +77,7 @@ INDEX_INFO = {
 }
 
 
-top_left, top_middle_left, top_middle_right, top_right = st.columns([1, 1, 1, 1])
+top_left, top_middle, top_right = st.columns([1, 1, 1])
 
 with top_left:
     st.subheader("📍 Escribir Coordenadas")
@@ -101,7 +101,7 @@ with top_left:
         manual_geometry = None
         st.warning("⚠️ Ingrese coordenadas válidas (máx > mín)")
 
-with top_middle_left:
+with top_middle:
     st.subheader("🎨 Parámetros de Visualización")
     col1, col2 = st.columns(2)
     with col1:
@@ -114,7 +114,7 @@ with top_middle_left:
     mask_missing = st.checkbox("🖼️ Enmascarar áreas sin datos", value=False, 
                                help="Las áreas sin información se mostrarán en gris")
     
-with top_middle_right:
+with top_right:
     st.subheader("☁️ Tolerancia de nubes (%)")
     cloud_tolerance = st.slider(
         "Maxima covertura permitida",
@@ -124,9 +124,8 @@ with top_middle_right:
         step=5,
         help="Porcentaje máximo de nubes permitido en las imágenes. Valores más altos incluyen más imágenes pero pueden tener nubes."
     )
-    
-with top_right:
-    st.subheader("📅 Rango de tiempo")
+        st.subheader("📅 Rango de tiempo")
+
     cola, colb = st.columns(2)
     with cola:
         start_date = st.date_input("Fecha inicial", value=datetime.date(2025, 4, 1))
@@ -137,13 +136,11 @@ with top_right:
         st.info(f"ℹ️ Rango de {date_range_days} días. Si no hay datos, amplía a 2-3 meses.")
     elif date_range_days > 180:
         st.info(f"ℹ️ Rango de {date_range_days} días. Procesar muchas imágenes puede tomar tiempo.")
-    
     if start_date >= end_date:
         st.error("❌ La fecha final debe ser posterior a la inicial")
         valid_dates = False
     else:
         valid_dates = True
-
 
 # --- Helper function to get dataset recommendations ---
 def get_dataset_recommendations(error_message):
