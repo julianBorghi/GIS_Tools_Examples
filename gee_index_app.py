@@ -38,42 +38,32 @@ def init_session_state():
 
 init_session_state()
 
+try:
+    if "earth_engine" in st.secrets:
+        service_account_info = dict(st.secrets["earth_engine"])
+    if "private_key" in service_account_info:
+        service_account_info["private_key"] = service_account_info["private_key"].replace("\\n", "\n")
+        credentials = service_account.Credentials.from_service_account_info(
+            service_account_info,
+            scopes=['https://www.googleapis.com/auth/earthengine']
+        )
+    ee.Initialize(credentials=credentials)      
+else:
+    st.info("ℹ️ No service account found. Contact juedborghi@gmail.com")
+except Exception as e:
+    st.error(f"❌ Failed to initialize Earth Engine: {e}")
+    st.stop()
+ 
 # --- Google Cloud Project (Top Left) ---
 top_left, top_right = st.columns([1, 1])
 with top_left:
-    st.subheader("☁️ Proyecto de Google Cloud")
-    try:
-        # Try to load service account from secrets
-        if "earth_engine" in st.secrets:
-            # Convert TOML back to dict for Google auth
-            service_account_info = dict(st.secrets["earth_engine"])
-        
-            # The private key comes with escaped newlines, need to handle carefully
-            if "private_key" in service_account_info:
-                service_account_info["private_key"] = service_account_info["private_key"].replace("\\n", "\n")
-        
-            # Create credentials
-            credentials = service_account.Credentials.from_service_account_info(
-                service_account_info,
-                scopes=['https://www.googleapis.com/auth/earthengine']
-            )
-        
-            # Initialize Earth Engine with service account
-            ee.Initialize(credentials=credentials)
-            st.success("✅ Earth Engine connected via Service Account!")
-            st.info(f"📧 Using: {service_account_info.get('client_email', 'service account')}")
-        
-        else:
-            # Fall back to individual user projects
-            st.info("ℹ️ No service account found. Using individual Google Cloud projects.")
-            # Your existing project selection code here...
-        
-    except Exception as e:
-        st.error(f"❌ Failed to initialize Earth Engine: {e}")
-        st.stop()
- 
-
-
+    st.subheader("📅 Rango de tiempo")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        start_date = st.date_input("Fecha inicial", value=datetime.date(2025, 4, 1))
+    with col2:
+        end_date = st.date_input("Fecha final", value=datetime.date(2025, 5, 1))
 
 # --- Visualization Parameters (Top Right) ---
 with top_right:
@@ -250,14 +240,6 @@ with middle_left:
         st.warning("⚠️ Ingrese coordenadas válidas (máx > mín)")
 
 with middle_right:
-    st.subheader("📅 Rango de tiempo")
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        start_date = st.date_input("Fecha inicial", value=datetime.date(2025, 4, 1))
-    with col2:
-        end_date = st.date_input("Fecha final", value=datetime.date(2025, 5, 1))
-    
     st.subheader("☁️ Tolerancia de nubes (%)")
     cloud_tolerance = st.slider(
         "Maxima covertura permitida",
