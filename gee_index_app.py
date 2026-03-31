@@ -85,10 +85,10 @@ with top_left:
 with top_right:
     st.subheader("📅 Rango de tiempo")
     cola, colb = st.columns(2)
-        with cola:
-            start_date = st.date_input("Fecha inicial", value=datetime.date(2025, 4, 1))
-        with colb:
-            end_date = st.date_input("Fecha final", value=datetime.date(2025, 5, 1))
+    with cola:
+        start_date = st.date_input("Fecha inicial", value=datetime.date(2025, 4, 1))
+    with colb:
+        end_date = st.date_input("Fecha final", value=datetime.date(2025, 5, 1))
     st.subheader("🎨 Parámetros de Visualización")
     
     col1, col2 = st.columns(2)
