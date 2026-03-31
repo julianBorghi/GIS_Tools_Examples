@@ -80,6 +80,7 @@ INDEX_INFO = {
 top_left, top_middle, top_right = st.columns([1, 1, 1])
 
 with top_left:
+    st.container(border=True)
     st.subheader("📍 Escribir Coordenadas")
     col1, col2 = st.columns(2)
     with col1:
@@ -100,7 +101,7 @@ with top_left:
     else:
         manual_geometry = None
         st.warning("⚠️ Ingrese coordenadas válidas (máx > mín)")
-    st.container(border=True)
+
 
 with top_middle:
     st.subheader("🎨 Parámetros de Visualización")
