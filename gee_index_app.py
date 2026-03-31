@@ -60,8 +60,8 @@ with top_left:
             )
         
             # Initialize Earth Engine with service account
-            ee.Initialize(credentials)
             ee.Authenticate()
+            ee.Initialize(credentials, project='don-carmelo-2025')
             st.success("✅ Earth Engine connected via Service Account!")
         
         else:
