@@ -146,6 +146,117 @@ with top_right:
         valid_dates = True
 
 
+# --- Helper function to get dataset recommendations ---
+def get_dataset_recommendations(error_message):
+    """Provide dataset recommendations based on error type"""
+    error_lower = str(error_message).lower()
+    
+    if "no images" in error_lower or "no se encontraron" in error_lower:
+        return {
+            "title": "📸 No se encontraron imágenes",
+            "message": "No hay imágenes disponibles para el área y período seleccionados.",
+            "suggestions": [
+                "🔍 **Ampliar el rango de fechas** - Prueba con un período de 2-3 meses",
+                "🗺️ **Seleccionar un área más grande** - El área actual puede ser muy pequeña o estar sin cobertura",
+                "☁️ **Aumentar tolerancia a nubes** - Algunas áreas tienen mucha nubosidad constante",
+                "📅 **Usar fechas más recientes** - Las imágenes Sentinel-2 están disponibles desde 2015"
+            ]
+        }
+    elif "cloud" in error_lower or "cloudy" in error_lower:
+        return {
+            "title": "☁️ Problemas con nubes",
+            "message": "Las imágenes disponibles tienen demasiada cobertura de nubes.",
+            "suggestions": [
+                "📅 **Ampliar el rango de fechas** - Más días aumentan la probabilidad de encontrar días despejados",
+                "☁️ **Aumentar el porcentaje de nubes permitido** - Prueba con 50% o 80%",
+                "🗺️ **Seleccionar un área diferente** - Algunas zonas son naturalmente más nubladas",
+                "🔧 **Usar colección con filtro de nubes** - Ya estamos usando S2_SR_HARMONIZED que tiene corrección atmosférica"
+            ]
+        }
+    elif "geometry" in error_lower or "bounds" in error_lower:
+        return {
+            "title": "🗺️ Problemas con el área seleccionada",
+            "message": "El área seleccionada no es válida o está fuera de los límites.",
+            "suggestions": [
+                "📍 **Verificar coordenadas** - Asegúrate que latitud esté entre -90 y 90, longitud entre -180 y 180",
+                "📏 **Aumentar el tamaño del área** - El área puede ser demasiado pequeña",
+                "🖱️ **Dibujar nuevamente** - Intenta dibujar el rectángulo otra vez en el mapa"
+            ]
+        }
+    elif "timeout" in error_lower or "too large" in error_lower:
+        return {
+            "title": "⏱️ Tiempo de procesamiento excedido",
+            "message": "La solicitud está tomando demasiado tiempo o el área es muy grande.",
+            "suggestions": [
+                "🗺️ **Reducir el área de interés** - El área actual puede ser demasiado extensa",
+                "📏 **Aumentar la escala** - Prueba con una resolución espacial mayor (30m o 60m)",
+                "📅 **Reducir el rango de fechas** - Menos imágenes para procesar"
+            ]
+        }
+    else:
+        return {
+            "title": "⚠️ Error inesperado",
+            "message": f"Ocurrió un error al procesar los datos: {error_message}",
+            "suggestions": [
+                "🔄 **Intentar nuevamente** - A veces es un problema temporal",
+                "📅 **Ampliar el rango de fechas** - Más datos pueden ayudar",
+                "🗺️ **Seleccionar un área diferente** - Prueba con otra ubicación",
+                "💬 **Verificar conexión** - Asegúrate de que Earth Engine esté funcionando correctamente"
+            ]
+        }
+
+# --- Helper function to check data coverage ---
+def check_data_coverage(image, geometry, index_name):
+    """Check if the image has sufficient data coverage"""
+    try:
+        # Get pixel count and statistics
+        stats = image.reduceRegion(
+            reducer=ee.Reducer.count(),
+            geometry=geometry,
+            scale=1000,  # 1km resolution for quick check
+            maxPixels=1e9,
+            bestEffort=True
+        )
+        
+        pixel_count = stats.get('index').getInfo()
+        
+        if pixel_count is None or pixel_count == 0:
+            return {
+                'has_data': False,
+                'message': "⚠️ No se encontraron datos válidos en el área seleccionada.",
+                'suggestion': "📅 Prueba con un rango de fechas más amplio (2-3 meses) para tener más imágenes disponibles."
+            }
+        
+        # Check if the area is partially covered
+        total_pixels = geometry.area().divide(1000 * 1000).getInfo()  # Approximate 1km pixels
+        coverage_ratio = pixel_count / total_pixels if total_pixels > 0 else 0
+        
+        if coverage_ratio < 0.3:
+            return {
+                'has_data': True,
+                'coverage_ratio': coverage_ratio,
+                'warning': f"⚠️ Solo {coverage_ratio:.1%} del área tiene datos válidos.",
+                'suggestion': "📅 Considera ampliar el rango de fechas para obtener mejor cobertura espacial."
+            }
+        
+        return {
+            'has_data': True,
+            'coverage_ratio': coverage_ratio,
+            'quality': 'good'
+        }
+        
+    except Exception as e:
+        return {
+            'has_data': False,
+            'message': f"Error al verificar la cobertura de datos: {str(e)}"
+        }
+            
+# Define geometry if coordinates are valid
+if all(c is not None for c in st.session_state.coords):
+    geometry = ee.Geometry.Rectangle(st.session_state.coords)
+else:
+    geometry = None
+
 middle_left, middle_right = st.columns([1, 1])
 
 with middle_left:
@@ -599,119 +710,6 @@ with middle_right:
                         
                 except Exception as e:
                     st.error(f"❌ Error al iniciar exportación: {str(e)}")
-
-    
-# --- Helper function to get dataset recommendations ---
-def get_dataset_recommendations(error_message):
-    """Provide dataset recommendations based on error type"""
-    error_lower = str(error_message).lower()
-    
-    if "no images" in error_lower or "no se encontraron" in error_lower:
-        return {
-            "title": "📸 No se encontraron imágenes",
-            "message": "No hay imágenes disponibles para el área y período seleccionados.",
-            "suggestions": [
-                "🔍 **Ampliar el rango de fechas** - Prueba con un período de 2-3 meses",
-                "🗺️ **Seleccionar un área más grande** - El área actual puede ser muy pequeña o estar sin cobertura",
-                "☁️ **Aumentar tolerancia a nubes** - Algunas áreas tienen mucha nubosidad constante",
-                "📅 **Usar fechas más recientes** - Las imágenes Sentinel-2 están disponibles desde 2015"
-            ]
-        }
-    elif "cloud" in error_lower or "cloudy" in error_lower:
-        return {
-            "title": "☁️ Problemas con nubes",
-            "message": "Las imágenes disponibles tienen demasiada cobertura de nubes.",
-            "suggestions": [
-                "📅 **Ampliar el rango de fechas** - Más días aumentan la probabilidad de encontrar días despejados",
-                "☁️ **Aumentar el porcentaje de nubes permitido** - Prueba con 50% o 80%",
-                "🗺️ **Seleccionar un área diferente** - Algunas zonas son naturalmente más nubladas",
-                "🔧 **Usar colección con filtro de nubes** - Ya estamos usando S2_SR_HARMONIZED que tiene corrección atmosférica"
-            ]
-        }
-    elif "geometry" in error_lower or "bounds" in error_lower:
-        return {
-            "title": "🗺️ Problemas con el área seleccionada",
-            "message": "El área seleccionada no es válida o está fuera de los límites.",
-            "suggestions": [
-                "📍 **Verificar coordenadas** - Asegúrate que latitud esté entre -90 y 90, longitud entre -180 y 180",
-                "📏 **Aumentar el tamaño del área** - El área puede ser demasiado pequeña",
-                "🖱️ **Dibujar nuevamente** - Intenta dibujar el rectángulo otra vez en el mapa"
-            ]
-        }
-    elif "timeout" in error_lower or "too large" in error_lower:
-        return {
-            "title": "⏱️ Tiempo de procesamiento excedido",
-            "message": "La solicitud está tomando demasiado tiempo o el área es muy grande.",
-            "suggestions": [
-                "🗺️ **Reducir el área de interés** - El área actual puede ser demasiado extensa",
-                "📏 **Aumentar la escala** - Prueba con una resolución espacial mayor (30m o 60m)",
-                "📅 **Reducir el rango de fechas** - Menos imágenes para procesar"
-            ]
-        }
-    else:
-        return {
-            "title": "⚠️ Error inesperado",
-            "message": f"Ocurrió un error al procesar los datos: {error_message}",
-            "suggestions": [
-                "🔄 **Intentar nuevamente** - A veces es un problema temporal",
-                "📅 **Ampliar el rango de fechas** - Más datos pueden ayudar",
-                "🗺️ **Seleccionar un área diferente** - Prueba con otra ubicación",
-                "💬 **Verificar conexión** - Asegúrate de que Earth Engine esté funcionando correctamente"
-            ]
-        }
-
-# --- Helper function to check data coverage ---
-def check_data_coverage(image, geometry, index_name):
-    """Check if the image has sufficient data coverage"""
-    try:
-        # Get pixel count and statistics
-        stats = image.reduceRegion(
-            reducer=ee.Reducer.count(),
-            geometry=geometry,
-            scale=1000,  # 1km resolution for quick check
-            maxPixels=1e9,
-            bestEffort=True
-        )
-        
-        pixel_count = stats.get('index').getInfo()
-        
-        if pixel_count is None or pixel_count == 0:
-            return {
-                'has_data': False,
-                'message': "⚠️ No se encontraron datos válidos en el área seleccionada.",
-                'suggestion': "📅 Prueba con un rango de fechas más amplio (2-3 meses) para tener más imágenes disponibles."
-            }
-        
-        # Check if the area is partially covered
-        total_pixels = geometry.area().divide(1000 * 1000).getInfo()  # Approximate 1km pixels
-        coverage_ratio = pixel_count / total_pixels if total_pixels > 0 else 0
-        
-        if coverage_ratio < 0.3:
-            return {
-                'has_data': True,
-                'coverage_ratio': coverage_ratio,
-                'warning': f"⚠️ Solo {coverage_ratio:.1%} del área tiene datos válidos.",
-                'suggestion': "📅 Considera ampliar el rango de fechas para obtener mejor cobertura espacial."
-            }
-        
-        return {
-            'has_data': True,
-            'coverage_ratio': coverage_ratio,
-            'quality': 'good'
-        }
-        
-    except Exception as e:
-        return {
-            'has_data': False,
-            'message': f"Error al verificar la cobertura de datos: {str(e)}"
-        }
-            
-# Define geometry if coordinates are valid
-if all(c is not None for c in st.session_state.coords):
-    geometry = ee.Geometry.Rectangle(st.session_state.coords)
-else:
-    geometry = None
-
 
 # --- Sidebar with Help Information ---
 with st.sidebar:
