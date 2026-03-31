@@ -237,9 +237,8 @@ def check_data_coverage(image, geometry, index_name):
 # --- Coordinates (Middle Left) & Time (Middle Right) ---
 middle_left, middle_right = st.columns([1.5, 1])
 
-with mid_left:
+with middle_left:
     st.subheader("🗺️ Dibujar Rectángulo en el Mapa")
-    
     # Calculate map center
     if all(c is not None for c in st.session_state.coords):
         center = [
