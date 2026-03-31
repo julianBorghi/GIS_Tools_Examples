@@ -22,7 +22,7 @@ def init_session_state():
         'image': None,
         'thumb_url': None,
         'export_name': "Image_Export",
-        'export_folder': "1iy8F7QOOfh6SIvNbQP1QY90h3kXS3mAh",
+        'export_folder': "your personal drive folder name or id here",
         'export_format': "GeoTIFF",
         'export_crs': "EPSG:32719",
         'export_scale': 10,
@@ -653,7 +653,8 @@ with middle_right:
             with col1:
                 st.session_state.export_name = st.text_input("📝 Nombre del archivo", 
                                                             value=st.session_state.export_name)
-                st.session_state.export_folder = "1iy8F7QOOfh6SIvNbQP1QY90h3kXS3mAh"
+                st.session_state.export_folder = st.text_input("📁 Carpeta en Drive", 
+                                                              value=st.session_state.export_folder)
                 st.session_state.export_scale = st.selectbox("📏 Escala (m/píxel)", 
                                                             [10, 20, 30, 60, 100, 250, 500],
                                                             index=[10, 20, 30, 60, 100, 250, 500].index(st.session_state.export_scale))
@@ -668,6 +669,8 @@ with middle_right:
         
         # Export button
         if st.button("💾 Exportar a Google Drive", type="primary", use_container_width=True):
+            if true:
+                st.error("❌ Funcion desabilitada para uso publico por reglas de Google Cloud")
             if not geometry:
                 st.error("❌ No hay geometría definida")
             else:
