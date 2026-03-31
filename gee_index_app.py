@@ -102,7 +102,7 @@ with top_left:
         manual_geometry = None
         st.warning("⚠️ Ingrese coordenadas válidas (máx > mín)")
 
-
+st.markdown("---")
 with top_middle:
     st.subheader("🎨 Parámetros de Visualización")
     col1, col2 = st.columns(2)
@@ -115,6 +115,7 @@ with top_middle:
     selected_palette = [color1, color2]
     mask_missing = st.checkbox("🖼️ Enmascarar áreas sin datos", value=False, 
                                help="Las áreas sin información se mostrarán en gris")
+    st.markdown("---")
     
 with top_right:
     st.subheader("☁️ Tolerancia de nubes (%)")
