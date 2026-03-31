@@ -7,6 +7,8 @@ from folium.plugins import Draw
 import os
 import time
 import numpy as np
+import json
+from google.oauth2 import service_account
 
 st.set_page_config(layout="wide")
 st.title("🌍 Índices Espectrales con Earth Engine")
@@ -39,36 +41,40 @@ init_session_state()
 # --- Google Cloud Project (Top Left) ---
 top_left, top_right = st.columns([1, 1])
 with top_left:
-    st.subheader("☁️ Proyecto de Google Cloud")
+        st.subheader("☁️ Proyecto de Google Cloud")
+    try:
+        # Try to load service account from secrets
+        if "earth_engine" in st.secrets:
+            # Convert TOML back to dict for Google auth
+            service_account_info = dict(st.secrets["earth_engine"])
+        
+            # The private key comes with escaped newlines, need to handle carefully
+            if "private_key" in service_account_info:
+                # Ensure proper line breaks in private key
+                service_account_info["private_key"] = service_account_info["private_key"].replace("\\n", "\n")
+        
+            # Create credentials
+            credentials = service_account.Credentials.from_service_account_info(
+                service_account_info,
+                scopes=['https://www.googleapis.com/auth/earthengine']
+            )
+        
+            # Initialize Earth Engine with service account
+            ee.Initialize(credentials, project=creds_info['project_id']
+            ee.Authenticate()
+            st.success("✅ Earth Engine connected via Service Account!")
+        
+        else:
+            # Fall back to individual user projects
+            st.info("ℹ️ No service account found. Using individual Google Cloud projects.")
+            # Your existing project selection code here...
+        
+    except Exception as e:
+        st.error(f"❌ Failed to initialize Earth Engine: {e}")
+        st.stop()
+ 
 
-    def initialize_gee():
-        """Initializes GEE using a Service Account for seamless portfolio access."""
-        try:
-            # Check if we are running in a deployed environment with secrets
-            if "gcp_service_account" in st.secrets:
-                creds_info = st.secrets["gcp_service_account"]
-                
-                # Create credentials object from the service account info
-                credentials = ee.ServiceAccountCredentials(
-                    creds_info['client_email'],
-                    key_data=creds_info['private_key']
-                )
-            
-                # Initialize with your specific project ID
-                ee.Initialize(credentials, project=creds_info['project_id'])
-                ee.Authenticate()
-                st.sidebar.success("✅ Connected via Service Account")
-            
-            else:
-                # Fallback for local development (uses your local gcloud auth)
-                ee.Initialize(project="don-carmelo-2025")
-                st.sidebar.info("🏠 Connected via Local Credentials")
-            
-        except Exception as e:
-            st.error(f"❌ Earth Engine Authentication Failed: {e}")
-            st.info("Check your Streamlit Secrets or local gcloud auth.")
-            st.stop()
-    initialize_gee()
+
 
 # --- Visualization Parameters (Top Right) ---
 with top_right:
