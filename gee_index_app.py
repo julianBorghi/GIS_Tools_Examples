@@ -41,7 +41,7 @@ init_session_state()
 # --- Google Cloud Project (Top Left) ---
 top_left, top_right = st.columns([1, 1])
 with top_left:
-        st.subheader("☁️ Proyecto de Google Cloud")
+    st.subheader("☁️ Proyecto de Google Cloud")
     try:
         # Try to load service account from secrets
         if "earth_engine" in st.secrets:
